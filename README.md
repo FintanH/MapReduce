@@ -13,4 +13,4 @@ To run:
 
 where x is the amount of cores you want to run on.
 
-If you want to see the parallelism exposed you can use ThreadScope (https://www.haskell.org/haskellwiki/ThreadScope), compiling -eventlog and running with -ls
+If you want to see the parallelism exposed you can use ThreadScope (https://www.haskell.org/haskellwiki/ThreadScope), compiling with -eventlog and running with -ls
