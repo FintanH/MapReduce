@@ -4,6 +4,7 @@ module Src.WordCounting (wordCountMapReduce, wordCountMapReducePar) where
 	import Src.MapReducePar
 	import Data.Map (Map)
 	import Control.Parallel.Strategies
+	import Src.MapReduceMonad
 
 	wordCountMap :: a -> String -> [(String, Int)]
 	wordCountMap = const (map (flip (,) 1) . words)

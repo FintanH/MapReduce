@@ -57,15 +57,3 @@ module Src.MapReducePar (mapReducePar) where
 			mapWithKeyPar f m = runPar $ do
 				_m <- traverseWithKey (\i jmap -> spawn (return (f i jmap))) m
 				traverse get _m
-
-			{--reducePerKeyPar :: Map k2 [v2] -> Map k2 v3
-			reducePerKeyPar = 
-				  fromList . parMap rdeepseq unJust
-				. withStrategy (parList $ rparWith rseq)
-				. filter isJust
-				. toList . mapWithKey rEDUCE
-					where
-						--parFilter = withStrategy (parList rseq) . 
-						isJust (k, Just v) = True
-						isJust (k, Nothing)  = False
-						unJust (k, Just v) = (k,v)--}
