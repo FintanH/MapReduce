@@ -12,7 +12,7 @@ module Src.MapReduceMonad where
 		return :: a -> m s x s a
 		(>>=)  :: (Eq b, NFData s'', NFData c) => 
 				  m s a s' b ->
-				  (b -> m s' b s'' c) ->
+				 (b -> m s' b s'' c) ->
 				  m s a s'' c
 
 	newtype MapReduce s a s' b = MR { runMR :: ([(s,a)] -> [(s',b)]) }
@@ -38,9 +38,10 @@ module Src.MapReduceMonad where
 	runMapReduce :: MapReduce s () s' b -> [s] -> [(s',b)]
 	runMapReduce m ss = (runMR m) [(s,()) | s <- ss]
 
-	distributMR :: (Hashable s) => MapReduce s () s Int
-	distributMR = MR (\ss -> [(s, hash s) | s <- fst <$> ss])
+	distributeMR :: (Hashable s) => MapReduce s () s Int
+	distributeMR = MR (\ss -> [(s, hash s) | s <- fst <$> ss])
 
+	wrapMR :: (Eq a) => ([s] -> [(s',b)]) -> (a -> MapReduce s a s' b)
 	wrapMR f = (\k -> MR (g k))
 		where
 			g k ss = f $ fst <$> filter (\s -> k == snd s) ss

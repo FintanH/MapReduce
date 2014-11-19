@@ -1,9 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -XExplicitForAll #-}
-module Src.MapReducePar (mapReducePar) where
+module Src.MapReducePar (mapReducePar, mr) where
 
 	import Data.Map (Map,empty,insertWith,mapWithKey,filterWithKey,toList,fromList,traverseWithKey,delete)
-	import Control.Parallel.Strategies (NFData,parList,parMap,withStrategy,rdeepseq,rparWith,rpar,rseq,runEval)
+	import Control.Parallel.Strategies (Strategy,NFData,parList,parMap,withStrategy,rdeepseq,rparWith,rpar,rseq,runEval,using)
+	import Control.Parallel
 	import Control.Monad.Par (new,fork,put,get,IVar,Par,runPar)
 	import Data.Traversable (traverse)
 
@@ -57,3 +58,12 @@ module Src.MapReducePar (mapReducePar) where
 			mapWithKeyPar f m = runPar $ do
 				_m <- traverseWithKey (\i jmap -> spawn (return (f i jmap))) m
 				traverse get _m
+
+	mr :: (NFData b, NFData c) => (a -> b) -> ([b] -> c) -> [a] -> c
+	mr mAP rEDUCE = mapReduce' rdeepseq mAP (rparWith rdeepseq) rEDUCE
+
+	mapReduce' :: Strategy b -> (a -> b) -> Strategy c -> ([b] -> c) -> [a] -> c
+	mapReduce' mapStrat mapFunc reduceStrat reduceFunc input = mapResult `pseq` reduceResult
+		where
+			mapResult = parMap mapStrat mapFunc input
+			reduceResult = reduceFunc mapResult `using` reduceStrat
